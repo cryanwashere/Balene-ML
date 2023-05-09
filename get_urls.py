@@ -35,8 +35,51 @@ def get_wikipedia_urls(search_term, num_urls):
 
 
 
-get_wikipedia_urls("sharks", 10)
-get_wikipedia_urls("machine learning", 10)
+terms = [
+    "sharks",
+    "machine learning",
+    "how to make a website",
+    "how to use Google Search",
+    "what is the weather like today",
+    "how to lose weight",
+    "how to cook a chicken",
+    "how to change a tire",
+    "how to fix a leaky faucet",
+    "how to write a book",
+    "how to start a business",
+    "how to learn a new language",
+    "how to get a job",
+    "how to make friends",
+    "how to find love",
+    "how to be happy",
+    "how to be healthy",
+    "how to be wealthy",
+    "how to travel the world",
+    "how to make a difference in the world",
+    "how to leave a legacy",
+    'apple',
+    'banana',
+    'cat',
+    'dog',
+    'elephant',
+    'flower',
+    'guitar',
+    'house',
+    'ice cream',
+    'jungle',
+    'koala',
+    'lion',
+    'mountain',
+    'nature',
+    'ocean',
+    'piano',
+    'queen',
+    'rainbow',
+    'sun',
+    'tree',
+]
+for term in terms:
+    get_wikipedia_urls(term, 100)
 
 
 with open("urls.txt","w") as f:
