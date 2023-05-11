@@ -7,7 +7,7 @@ with open("urls.txt", "r") as f:
 from joblib import Parallel, delayed
 
 def download_url(i):
-    parse.process_page(urls[i])
+    parse.process_page(urls[i], "data")
 
 if __name__ == "__main__":
     # Run the loop in parallel.
