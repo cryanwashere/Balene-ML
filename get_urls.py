@@ -79,7 +79,7 @@ terms = [
     'tree',
 ]
 for term in terms:
-    get_wikipedia_urls(term, 1)
+    get_wikipedia_urls(term, 20)
 
 
 with open("urls.txt","w") as f:
