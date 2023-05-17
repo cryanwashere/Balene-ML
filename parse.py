@@ -14,6 +14,18 @@ def convert_and_resize_image(image, output_path, size):
     image = image.resize(size)  
     image.save(output_path, 'JPEG')  # Save the image as JPEG format
 
+def page_info(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        html_content = response.text
+        soup = BeautifulSoup(html_content, 'html.parser')
+
+        for img_tag in soup.find_all('img'):
+            if 'src' in img_tag.attrs:
+                image_url = img_tag['src']
+
+                print(image_url)
+
 def process_page(url, root_path):
 
     output_str = ""
@@ -26,6 +38,9 @@ def process_page(url, root_path):
         for img_tag in soup.find_all('img'):
             if 'src' in img_tag.attrs:
                     image_url = img_tag['src']
+
+                    if "static" in image_url:
+                        continue
 
                     if not "https://" in image_url:
                         image_url = urljoin(url, image_url)  # Handle relative URLs
@@ -47,8 +62,8 @@ def process_page(url, root_path):
                         except:
                             pass
                     else:
-
-                        print('Failed to download image:', image_url)
+                        pass
+                        #print('Failed to download image:', image_url)
         
         output_str += "IMAGES_DONE\n"
 
@@ -67,7 +82,7 @@ def process_page(url, root_path):
 
         with open(path, "w") as f:
             f.write(output_str)
-        print(f"saved web page data: {path}")
+        return f"saved web page data: {path}"
 
     else:
-        print('Failed to fetch the web page:', response.status_code)
+        return f'Failed to fetch the web page: {response.status_code}'

@@ -1,86 +1,124 @@
 import requests
+from urllib.parse import urljoin
+from bs4 import BeautifulSoup
+import time
+import random
 
-urls = []
+url_max = 50000
 
-def get_wikipedia_urls(search_term, num_urls):
-    # Set up the API endpoint
-    api_url = 'https://en.wikipedia.org/w/api.php'
+urls = list()
+with open("urls.txt", "r") as f:
+    urls = f.read().split("\n")
 
-    # Set the parameters for the API request
-    params = {
-        'action': 'query',
-        'format': 'json',
-        'list': 'search',
-        'srsearch': search_term,
-        'srprop': '',
-        'sroffset': 0,
-        'srlimit': num_urls
-    }
 
-    # Send the API request
-    response = requests.get(api_url, params=params)
-    data = response.json()
+def pause_random_time():
+    # Generate a random float between 0.1 and 1.0 (adjust the range as needed)
+    random_time = random.uniform(0.1, 0.5)
+    time.sleep(random_time)
 
-    #print(data)
+def save_urls():
+    print(f"\nloaded {len(urls)} urls")
+    with open("urls.txt", 'w') as f:
+        f.write('\n'.join(urls))
+
+def search_HTML(html_content):
+
+    soup = BeautifulSoup(html_content, 'html.parser')
+    links = soup.find_all('a')
+
+    # get only the links with hrefs
+    links = [link for link in links if "href" in link.attrs]
+
+    # get the references from the links
+    links = [link["href"] for link in links]
+
+    # clear out empy links
+    links = [link for link in links if link != '']
 
     
-    if 'query' in data and 'search' in data['query']:
-        for result in data['query']['search']:
-            if 'title' in result:
-                title = result['title']
-                url = 'https://en.wikipedia.org/wiki/' + title.replace(' ', '_')
-                urls.append(url)
+    _links = list()
+    for link in links:
+        
+        if "wikipedia.org" in link:
+            continue
+
+        if "wikidata.org" in link:
+            continue
+
+        if "wikimedia" in link:
+            continue
+
+        if "https://" in link:
+            continue
+
+        if ":" in link:
+            continue
+
+        if "#" in link:
+            continue
+
+        if "%" in link:
+            continue
+
+        if "&" in link:
+            continue
+        
+        if 'disambiguation' in link:
+            continue
+
+        if not "https://" in link:
+            link = urljoin("https://wikipedia.org",link)
+
+        _links.append(link)
+
+    links = _links
+    del _links
+
+    return links
+    
+
+max_recursion_depth = 20
+
+def get_page(url, recursion_depth = 0):
+
+    
+
+    
+
+    if url in terminate_urls:
+        return
+
+    if recursion_depth >= max_recursion_depth:
+        return
+    recursion_depth += 1
+
+    if len(urls) >= url_max:
+        return
+
+    urls.append(url)
+    print(f"({len(urls)}) ({recursion_depth}) {url}")
+
+    if len(urls) % 200 == 0:
+        save_urls()
+
+    pause_random_time()
+
+    response = requests.get(url)
+    if response.status_code == 200:
+
+        html = response.text
+        links = search_HTML(html)
+
+        for link in links:
+            if not link in urls:
+                get_page(link, recursion_depth=recursion_depth)
+
+                
 
 
+start_url = "https://wikipedia.org/wiki/Google_Search"
 
+terminate_urls = list()
 
+get_page(start_url)
 
-terms = [
-    "sharks",
-    "machine learning",
-    "how to make a website",
-    "how to use Google Search",
-    "what is the weather like today",
-    "how to lose weight",
-    "how to cook a chicken",
-    "how to change a tire",
-    "how to fix a leaky faucet",
-    "how to write a book",
-    "how to start a business",
-    "how to learn a new language",
-    "how to get a job",
-    "how to make friends",
-    "how to find love",
-    "how to be happy",
-    "how to be healthy",
-    "how to be wealthy",
-    "how to travel the world",
-    "how to make a difference in the world",
-    "how to leave a legacy",
-    'apple',
-    'banana',
-    'cat',
-    'dog',
-    'elephant',
-    'flower',
-    'guitar',
-    'house',
-    'ice cream',
-    'jungle',
-    'koala',
-    'lion',
-    'mountain',
-    'nature',
-    'ocean',
-    'piano',
-    'queen',
-    'rainbow',
-    'sun',
-    'tree',
-]
-for term in terms:
-    get_wikipedia_urls(term, 100)
-
-
-with open("urls.txt","w") as f:
-    f.write("\n".join(urls))
